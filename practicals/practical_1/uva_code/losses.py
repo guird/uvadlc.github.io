@@ -2,6 +2,8 @@
 This module implements various losses for the network.
 You should fill in code into indicated sections. 
 """
+import softmax
+import numpy as np
 
 def HingeLoss(x, y):
   """
@@ -61,7 +63,7 @@ def SoftMaxLoss(x, y):
   Computes the loss and gradient with the respect to the input for softmax classfier.
 
   Args:
-    x: Input data.
+  x: Input data.
     y: Labels of data. 
 
   Returns:
@@ -74,8 +76,24 @@ def SoftMaxLoss(x, y):
   # Compute softmax loss on input x and y and store it in loss variable. Compute gradient#
   # of the loss with respect to the input and store it in dx variable.                   #
   ########################################################################################
-  dx = None
-  loss = None
+  logp = softmax.softmax(x)
+
+  
+  
+  T = np.zeros(x.shape )
+
+  
+  for i in range(len(y)):
+
+    T[i,y[i]] = 1
+
+  loss = - (T * logp).sum() / x.shape[0]
+  
+
+  
+  dx = -(T - np.exp(logp))
+  
+ 
   ########################################################################################
   #                              END OF YOUR CODE                                        #
   ########################################################################################

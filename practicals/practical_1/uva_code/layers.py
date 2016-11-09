@@ -2,6 +2,9 @@
 This module implements various layers for the network.
 You should fill in code into indicated sections.
 """
+import numpy as np
+import softmax
+
 
 class Layer(object):
   """
@@ -115,8 +118,16 @@ class LinearLayer(Layer):
     #                                                                                      #
     # Initialize biases self.params['b'] with 0.                                           #
     ######################################################################################## 
-    self.params['w'] = None
-    self.params['b'] = None
+    W = np.zeros((self.layer_params["output_size"], self.layer_params["input_size"]))
+  
+    for i in range(self.layer_params["output_size"]):
+      for j in range(self.layer_params["input_size"]):
+        W[i,j] = np.random.normal(0, self.layer_params['weight_scale'])
+
+    b = np.zeros(self.layer_params["output_size"])
+    self.params['w'] = W
+    self.params['b'] = b
+
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -137,7 +148,7 @@ class LinearLayer(Layer):
     # Compute the loss of the layer which responsible for L2 regularization term. Store it #
     # in loss variable.                                                                    #
     ######################################################################################## 
-    loss = None
+    loss = self.layer_params["weight_decay"] *0.5  * (self.params["w"]**2).sum() 
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -161,11 +172,22 @@ class LinearLayer(Layer):
     # Hint: You can store intermediate variables in self.cache which can be used in        #
     # backward pass computation.                                                           #
     ######################################################################################## 
-    out = None
+    
+    w = self.params['w']
+    b = self.params['b']
+
+    s = (x.dot(w.transpose()) + b)
+  
+    
+    out = s #no activation function implemented here?
+    
 
     # Cache if in train mode
     if self.train_mode:
-      self.cache = None
+      self.cache = {}
+      self.cache['out'] = out
+      
+      self.cache['x'] = x
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -194,9 +216,34 @@ class LinearLayer(Layer):
     #                                                                                      #
     # Hint: Use self.cache from forward pass.                                              #
     ######################################################################################## 
-    dx = None
-    self.grads['w'] = None
-    self.grads['b'] = None
+    #db/dL is delta
+    
+    #z = self.cache['z'] 
+    # s = self.cache['s'] # not needed this time
+    x = self.cache['x']
+    w = self.params['w']
+    
+    db = np.zeros(dout.shape[1])
+    dw = np.zeros(w.shape)
+    
+    for i in range(dout.shape[0]):
+      dbi =dout[i,:] / dout.shape[0]  # * f'(s), but in th is case f(s) = s ?
+
+      dw += np.outer(dbi, x[i,:])
+      db += dbi
+                    
+    
+    
+    
+    dw += self.layer_params["weight_decay"] * w
+    
+    dx = np.dot(db,w) 
+                  
+                  
+
+
+    self.grads['w'] = dw
+    self.grads['b'] = db
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -226,11 +273,15 @@ class ReLULayer(Layer):
     # Hint: You can store intermediate variables in self.cache which can be used in        #
     # backward pass computation.                                                           #
     ######################################################################################## 
-    out = None
+    
+    #so all the ReLU layer does is apply the ReLU function to the data?
+    
+    out = x * (x > 0)
+    
 
     # Cache if in train mode
     if self.train_mode:
-      self.cache = None
+      self.cache = {'x':x}
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -255,7 +306,8 @@ class ReLULayer(Layer):
     #                                                                                      #
     # Hint: Use self.cache from forward pass.                                              #
     ######################################################################################## 
-    dx = None
+    x = self.cache['x']
+    dx = dout * (x > 0)
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################

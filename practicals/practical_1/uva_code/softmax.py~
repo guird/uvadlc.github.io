@@ -1,0 +1,11 @@
+import numpy as np
+
+#softmax function written here for simplicity
+def softmax(x):
+  #inputs:
+  #   x: an array of floats
+  #outputs: 
+  #   sofx: the softmax of x
+  Z = np.exp(x).sum()
+  sofx = np.exp(x) / Z
+  return sofx

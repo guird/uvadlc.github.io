@@ -33,8 +33,10 @@ class SGD(object):
     # Compute new weights according to vanilla SGD update rule. Store new weights in       #
     # next_w, new config of optimizer in next_config variables respectively.               #
     ########################################################################################
-    next_w = None
-    next_config = None
+    
+    next_w = w - config["learning_rate"] *dw
+    next_config = config #??????????????????????????????????????????????? what is this about 
+    # a new config?
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
