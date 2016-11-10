@@ -205,6 +205,7 @@ class LinearLayer(Layer):
       dx: Gradients with respect to the input of the layer.
 
     """
+    
     if not self.train_mode:
       raise ValueError("Backward is not possible in test mode")
 
@@ -220,6 +221,7 @@ class LinearLayer(Layer):
     
     #z = self.cache['z'] 
     # s = self.cache['s'] # not needed this time
+
     x = self.cache['x']
     w = self.params['w']
     
@@ -240,10 +242,11 @@ class LinearLayer(Layer):
     dx = np.dot(db,w) 
                   
                   
-
+    
 
     self.grads['w'] = dw
     self.grads['b'] = db
+    
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -278,7 +281,7 @@ class ReLULayer(Layer):
     
     out = x * (x > 0)
     
-
+    #self.params['token'] = 0
     # Cache if in train mode
     if self.train_mode:
       self.cache = {'x':x}
@@ -307,6 +310,9 @@ class ReLULayer(Layer):
     # Hint: Use self.cache from forward pass.                                              #
     ######################################################################################## 
     x = self.cache['x']
+    
+    #self.grads['token'] = 0
+    
     dx = dout * (x > 0)
     ########################################################################################
     #                              END OF YOUR CODE                                        #
@@ -337,11 +343,11 @@ class SigmoidLayer(Layer):
     # Hint: You can store intermediate variables in self.cache which can be used in        #
     # backward pass computation.                                                           #
     ########################################################################################
-    out = None
+    out = 1/(1 + np.exp(-x))
 
     # Cache if in train mode
     if self.train_mode:
-      self.cache = None
+      self.cache = {'out':out}
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -366,7 +372,8 @@ class SigmoidLayer(Layer):
     #                                                                                      #
     # Hint: Use self.cache from forward pass.                                              #
     ########################################################################################
-    dx = None
+    out = self.cache['out']
+    dx =  dout * out*(1-out)
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -396,11 +403,11 @@ class TanhLayer(Layer):
     # Hint: You can store intermediate variables in self.cache which can be used in        #
     # backward pass computation.                                                           #
     ########################################################################################
-    out = None
+    out = np.tanh(x)
 
     # Cache if in train mode
     if self.train_mode:
-      self.cache = None
+      self.cache = {'out':out}
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -425,7 +432,8 @@ class TanhLayer(Layer):
     #                                                                                      #
     # Hint: Use self.cache from forward pass.                                              #
     ########################################################################################
-    dx = None
+    out = self.cache['out']
+    dx = dout * out * (1-out)
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################
@@ -469,13 +477,15 @@ class ELULayer(Layer):
     # Hint: You can store intermediate variables in self.cache which can be used in        #
     # backward pass computation.                                                           #
     ########################################################################################
-    out = None
+    bools = (x > 0)
+    out = x * bools + self.layer_params['alpha']*(np.exp(x) - 1)*(not bools)
+    
 
     # Cache if in train mode
     if self.train_mode:
-      self.cache = None
+      self.cache = {'x':x}
     ########################################################################################
-    #                              END OF YOUR CODE                                        #
+    #                          END OF YOUR CODE                                        #
     ########################################################################################
     
     return out
@@ -498,7 +508,12 @@ class ELULayer(Layer):
     #                                                                                      #
     # Hint: Use self.cache from forward pass.                                              #
     ########################################################################################
-    dx = None
+    x = self.cache['x']
+    
+    bools = (x > 0)
+    out = 1 * bools + (self.layer_params['alpha']*(np.exp(x) - 1)+ self.layer_params['alpha'])*(not bools)
+    
+    dx = dout * out
     ########################################################################################
     #                              END OF YOUR CODE                                        #
     ########################################################################################

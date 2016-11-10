@@ -53,13 +53,13 @@ class Solver(object):
     # Compute gradient of the loss on the batch with the respect to model parameters.      #
     # Compute gradient of the loss with respect ot parametrs of the model.                 #
     ########################################################################################
+
     out = self.model.forward(x_batch)
 
     
     loss, dout = self.model.loss(out, y_batch) 
     
 
-    
     self.model.backward(dout)
 
     
@@ -76,6 +76,7 @@ class Solver(object):
         for param_name in param_names:
           w = self.model.layers[i].params[param_name]
           dw = self.model.layers[i].grads[param_name]
+          
           optimizer_config = self.optimizer_configs[i][param_name]
           next_w, next_optimizer_config = self.optimizer(w, dw, optimizer_config)
           self.model.layers[i].params[param_name] = next_w
@@ -152,10 +153,7 @@ class Solver(object):
       
       x_train_batch = x_train[indices]
       y_train_batch = y_train[indices]
-      print x_train.shape
-      print y_train.shape
-      print x_train_batch.shape
-      print y_train_batch.shape
+
       ########################################################################################
       #                              END OF YOUR CODE                                        #
       ########################################################################################

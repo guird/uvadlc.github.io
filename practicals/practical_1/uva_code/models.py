@@ -98,10 +98,12 @@ x
     # Implement backward pass for the network.                                             #
     ########################################################################################
     
-    for layer in self.layers:
-      dout = layer.backward(dout)
     
-    
+    i = len(self.layers)-1
+    while i >= 0:
+      
+      dout = self.layers[i].backward(dout)
+      i -= 1    
 
     ########################################################################################
     #                              END OF YOUR CODE                                        #
